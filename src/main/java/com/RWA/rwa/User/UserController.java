@@ -86,7 +86,7 @@ public class UserController {
                 statement.setString(4, user.getPasswd());
                 int rowsAffected = statement.executeUpdate();
                 if (rowsAffected > 0){
-                    System.out.println("Se ha añadido el usuario correctamente");
+//                    System.out.println("Se ha añadido el usuario correctamente");
                     return ResponseEntity.ok(user);
                 }
             }
