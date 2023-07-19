@@ -5,10 +5,10 @@ import com.RWA.rwa.User.User;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Transaction")
+@Table(name = "Transactions")
 public class Transaction {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String remitente;
@@ -16,7 +16,7 @@ public class Transaction {
     private double importe;
 
     @ManyToOne
-    @JoinColumn(name = "BankAccount.id")
+    @JoinColumn(name = "bank_accounts.id")
     private BankAccount bankAccount;
 
     public Transaction(int id, String remitente, String destinatario, double importe) {

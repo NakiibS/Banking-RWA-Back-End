@@ -6,16 +6,14 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "BankAccounts")
+@Table(name = "bank_accounts")
 public class BankAccount {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String accountNumber;
     private String accountName;
     private double balance;
-
-
 
     @OneToMany(mappedBy = "bankAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions;

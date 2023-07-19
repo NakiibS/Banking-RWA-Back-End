@@ -1,15 +1,12 @@
 package com.RWA.rwa.User;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Users")
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String First_Name;
     private String Last_Name;
@@ -93,4 +90,5 @@ public class User {
     public void setPasswd(String passwd) {
         Passwd = passwd;
     }
+
 }

@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class BankAccountController {
 
@@ -24,13 +25,13 @@ public class BankAccountController {
         //creamos la lista
         List<BankAccount> listAccounts =new ArrayList<>();
         try (Connection connection = Conexion.getConnection()){
-            String query = "Select * from BankAccounts";
+            String query = "Select * from bank_accounts";
             PreparedStatement statement = connection.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             while (rs.next()){
                 int id = rs.getInt("id");
-                String accountNumber = rs.getString("accountNumber");
-                String accountName = rs.getString("accountName");
+                String accountNumber = rs.getString("account_Number");
+                String accountName = rs.getString("account_Name");
                 Double balance = rs.getDouble("balance");
 
                 BankAccount account = new BankAccount(id,accountName,accountNumber,balance);
@@ -47,15 +48,15 @@ public class BankAccountController {
     public ResponseEntity<BankAccount> getAccount(@PathVariable("id") int id){
         BankAccount account = null;
         try (Connection connection = Conexion.getConnection()){
-            String sql = "SELECT * FROM BankAccounts WHERE id = ?";
+            String sql = "SELECT * FROM bank_accounts WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.setInt(1,id);
                 try (ResultSet rs = statement.executeQuery()){
                     if(rs.next()){
                         account = new BankAccount();
                         account.setId(rs.getInt("id"));
-                        account.setAccountName(rs.getString("accountName"));
-                        account.setAccountNumber(rs.getString("accountNumber"));
+                        account.setAccountName(rs.getString("account_Name"));
+                        account.setAccountNumber(rs.getString("account_Number"));
                         account.setBalance(rs.getDouble("balance"));
 
                     }
@@ -74,7 +75,7 @@ public class BankAccountController {
     @PostMapping("/accounts")
     public ResponseEntity<BankAccount> createAccount(@RequestBody BankAccount account){
         try (Connection connection = Conexion.getConnection() ){
-            String sql = "INSERT INTO BankAccounts (accountNumber, accountName, balance) VALUES (?, ?, ?);";
+            String sql = "INSERT INTO bank_accounts (account_Number, account_Name, balance) VALUES (?, ?, ?);";
             try (PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.setString(1, account.getAccountNumber());
                 statement.setString(2, account.getAccountName());
@@ -94,7 +95,7 @@ public class BankAccountController {
     @DeleteMapping("/accounts/{id}")
     public ResponseEntity<String> deleteAccount(@PathVariable("id") int id){
         try (Connection connection = Conexion.getConnection()){
-            String sql = "DELETE FROM BankAccounts WHERE (id = ?);";
+            String sql = "DELETE FROM bank_accounts WHERE (id = ?);";
             try (PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.setInt(1,id);
                 int rowsAffected = statement.executeUpdate();

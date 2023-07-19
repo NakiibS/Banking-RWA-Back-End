@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class TransactionController {
 
@@ -21,7 +21,7 @@ public class TransactionController {
         //creamos la lista
         List<Transaction> listTransactions =new ArrayList<>();
         try (Connection connection = Conexion.getConnection()){
-            String query = "Select * from Transaction";
+            String query = "Select * from transactions ";
             PreparedStatement statement = connection.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             while (rs.next()){
@@ -42,20 +42,31 @@ public class TransactionController {
     @PostMapping("/accounts/{id_account}/transactions")
     public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction, @PathVariable int id_account){
         try (Connection connection = Conexion.getConnection() ){
-            String sql = "INSERT INTO Transaction (remitente, destinatario, importe) VALUES (?, ?, ?);";
+            String sql = "INSERT INTO Transactions (remitente, destinatario, importe, bank_accounts_id) VALUES (?, ?, ?, ?);";
             try (PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.setString(1, transaction.getRemitente());
                 statement.setString(2, transaction.getDestinatario());
                 statement.setDouble(3, transaction.getImporte());
+                statement.setInt(4, id_account);
                 int rowsAffected = statement.executeUpdate();
                 if (rowsAffected > 0){
                     System.out.println("Se ha añadido la transaccion correctamente");
 
                 }
             }
+            String sqlDestinatario = "UPDATE bank_accounts SET balance = balance + ? WHERE (account_Name = ?);";
+            try (PreparedStatement statementDestinatario = connection.prepareStatement(sqlDestinatario)){
+                statementDestinatario.setDouble(1,transaction.getImporte());
+                statementDestinatario.setString(2, transaction.getDestinatario());
+                int rowsUpdated = statementDestinatario.executeUpdate();
+                if (rowsUpdated > 0){
+                    System.out.println("Se ha actualizado el saldo de la cuenta destinataria");
+
+                }
+            }
 
             //Actualizar el saldo de la cuenta bancaria
-            String sqlSaldo = "UPDATE BankAccounts SET balance = balance - ? WHERE (id = ?);";
+            String sqlSaldo = "UPDATE bank_accounts SET balance = balance - ? WHERE (id = ?);";
             try (PreparedStatement statementSaldo = connection.prepareStatement(sqlSaldo)){
                 statementSaldo.setDouble(1, transaction.getImporte());
                 statementSaldo.setInt(2, id_account);
@@ -65,6 +76,7 @@ public class TransactionController {
                     return ResponseEntity.ok(transaction);
                 }
             }
+
 
         }catch (SQLException e){
             e.printStackTrace();
@@ -76,7 +88,7 @@ public class TransactionController {
     public ResponseEntity<Transaction> getTransaction(@PathVariable int id){
         Transaction transaction = null;
         try (Connection connection = Conexion.getConnection() ){
-            String sql = "SELECT * FROM Transaction WHERE id= ?;";
+            String sql = "SELECT * FROM Transactions WHERE id= ?;";
             try (PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.setInt(1,id);
                 try (ResultSet rs = statement.executeQuery(sql)){
